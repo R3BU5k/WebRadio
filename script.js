@@ -139,3 +139,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Avvia il caricamento delle stazioni quando la pagina è pronta
   loadRadioStations(jsonSelector.value);
 });
+
+
+// Aggiorna --vh su resize e load per iOS/Android
+function setVh() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+window.addEventListener('resize', setVh);
+window.addEventListener('load', setVh);
+setVh();
+

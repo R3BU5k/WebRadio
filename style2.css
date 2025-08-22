@@ -1,101 +1,104 @@
+/* ===================== */
+/* Root colors / Tema AMOLED */
 :root {
-  /* AMOLED Theme */
-  --color-bg: #000000; /* nero puro */
+  --color-bg: #000000;
   --color-surface: #000000; 
   --color-surface-alt: #1a1a1a;
   --color-text: #e0e0e0;
   --color-text-muted: #9e9e9e;
-  --color-primary: #00bcd4; /* ciano brillante */
-  --color-secondary: #ff4081; /* rosa acceso */
-  --color-accent: #00bcd4; /* arancio vibrante */
+  --color-primary: #00bcd4;
+  --color-secondary: #ff4081;
+  --color-accent: #00bcd4;
   --color-border: #2a2a2a;
   --color-hover: #222222;
+
+  --vh: 1vh; /* fallback, aggiornato dinamicamente via JS */
 }
 
-/* Rimuove margini e previene scroll pagina */
+/* ===================== */
+/* Reset generico */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-html,
-body {
+
+html, body {
   width: 100%;
   height: 100%;
-}
-
-body {
   font-family: Arial, sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0px;
 }
 
+/* ===================== */
+/* Container principale */
 .container {
   width: 100%;
-  height: 100vh;
-  height: 100dvh;  /* override dove supportato */
+  max-width: 600px;
+  height: calc(var(--vh, 1vh) * 100 - 60px); /* sottrae padding verticale */
+  padding: 30px;
+  padding-top: 0;
+  border-radius: 10px;
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
-  padding: 30px;
-  border-radius: 10px;
-  max-width: 600px;
   text-align: center;
 }
 
+/* ===================== */
+/* Titolo */
 h1 {
   color: var(--color-secondary);
   margin-bottom: 20px;
 }
 
+/* ===================== */
+/* Player principale */
 .player {
   background-color: var(--color-surface-alt);
   padding: 20px;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 20px;
 }
 
+/* Info stazione corrente */
 #current-station {
-  margin: 0 0 15px 0;
+  flex-grow: 1;
   font-size: 1.2em;
   color: var(--color-primary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
 }
 
 audio {
   width: 100%;
 }
 
+/* ===================== */
+/* Lista radio scrollabile */
 .radio-list-container {
-  flex: 1; 
-  min-height: 0;
+  flex: 1;
+  min-height: 0; /* importante per scroll interno flex */
   background-color: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  overflow: auto;
+  overflow-y: auto; /* scroll solo qui */
   padding: 15px;
-}
-
-#search-bar {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 5px;
-  border: 1px solid var(--color-border);
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  font-size: 1em;
 }
 
 #radio-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  overflow-y: auto;
-  text-align: left;
 }
 
 .radio-list-container::-webkit-scrollbar {
@@ -122,23 +125,37 @@ audio {
   border-bottom: none;
 }
 
+/* Info stazione nella lista */
 .station-info .name {
   font-weight: bold;
   color: var(--color-primary);
 }
 
-.station-info .genre {
+.station-info .genre,
+.station-info .language {
   font-size: 0.9em;
   color: var(--color-text-muted);
 }
 
 .station-info .language {
-  font-size: 0.9em;
-  color: var(--color-text-muted);
   float: right;
 }
 
-/* Stile per il menu di selezione */
+/* ===================== */
+/* Barra di ricerca */
+#search-bar {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-size: 1em;
+}
+
+/* ===================== */
+/* Menu selezione JSON */
 .selection-menu {
   margin-bottom: 20px;
   text-align: left;
@@ -155,18 +172,17 @@ audio {
   font-size: 1em;
   width: 100%;
   cursor: pointer;
-  -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   background-repeat: no-repeat;
   background-position: right 10px center;
 }
 
-/* Pulsanti di navigazione */
+/* ===================== */
+/* Pulsanti player */
 .player-controls {
   display: flex;
-  align-items: center;
   justify-content: space-around;
+  align-items: center;
   margin-bottom: 15px;
 }
 
@@ -188,15 +204,4 @@ audio {
 
 .nav-btn:active {
   background-color: var(--color-primary);
-}
-
-#current-station {
-  flex-grow: 1;
-  margin: 0 10px;
-  font-size: 1.2em;
-  color: var(--color-primary);
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
