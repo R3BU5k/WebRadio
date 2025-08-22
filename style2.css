@@ -115,6 +115,7 @@ audio {
   border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   transition: background-color 0.3s ease;
+  text-align: left;
 }
 
 #radio-list li:hover {
@@ -205,3 +206,4 @@ audio {
 .nav-btn:active {
   background-color: var(--color-primary);
 }
+
