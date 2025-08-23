@@ -1,45 +1,51 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Radio Player</title>
-    <link rel="stylesheet" href="style2.css">
-    <link rel="manifest" href="manifest.json"> <!-- PWA -->
-</head>
-<body>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="manifest.json" />
+    <!-- PWA -->
+  </head>
+  <body>
     <div class="container">
-        <h1>Online Radio Player</h1>
-        
-        <div class="player">
-            <h2 id="current-station">Seleziona una radio</h2>
-            <br>
-            <div class="player-controls">
-                <button id="prev-btn" class="nav-btn">❮❮</button>
-                <button id="next-btn" class="nav-btn">❯❯</button>
-            </div>
-            <audio id="audio-player" controls></audio>
+      <h1 class="title">Online Radio Player</h1>
+
+      <div class="player">
+        <div class="player-controls">
+          <button id="prev-btn" class="nav-btn">❮❮</button>
+          <button id="next-btn" class="nav-btn">❯❯</button>
+          <marquee scrollamount="2" direction="left"><h2 id="current-station">Seleziona una radio</h2></marquee>
+          <button id="switch" class="nav-btn" onclick="switchAudio()">...</button>
         </div>
-
-            <div class="selection-menu">
-                <label for="json-selector">Scegli una categoria:</label>
-                <select id="json-selector">
-                    <option value="ita.json">ITA</option>
-                    <option value="radio_stations.json">Test</option>
-                    </select>
-            </div>
-            
-            <input type="text" id="search-bar" placeholder="Cerca per nome o genere...">
-
-        <div class="radio-list-container">
-
-            <ul id="radio-list">
-            </ul>
+        <br />
+        <audio id="audio-player" controls></audio>
+        <br />
+        <div class="selection-menu">
+          <div class="category">
+            <label for="json-selector">Scegli una categoria:</label>
+            <select id="json-selector">
+              <option value="ita.json">ITA</option>
+              <option value="radio_stations.json">Test</option>
+              <option value="radio_stations.json">
+                TestTestTestTestTestTestTestTestTestTest Test
+              </option>
+            </select>
+          </div>
+          <br />
+          <input type="text" id="search-bar" placeholder="Cerca per nome o genere..." />
         </div>
+      </div>
+
+      <div class="radio-list-container">
+        <ul id="radio-list"></ul>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
     <script src="script.js"></script>
-    <script src="index.js"></script> <!-- PWA -->
-</body>
+    <script src="index.js"></script>
+    <!-- PWA -->
+  </body>
 </html>

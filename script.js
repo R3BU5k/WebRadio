@@ -6,148 +6,118 @@ document.addEventListener("DOMContentLoaded", () => {
   const jsonSelector = document.getElementById("json-selector");
   const nextBtn = document.getElementById("next-btn");
   const prevBtn = document.getElementById("prev-btn");
+  const playPauseBtn = document.getElementById("switch");
 
   let allStations = [];
-  let currentIndex = -1; // -1 indica che nessuna stazione è selezionata
+  let currentStations = [];
+  let currentIndex = -1;
+  let hls;
 
-  // Funzione per caricare le stazioni radio dal file JSON
   async function loadRadioStations(jsonPath) {
     try {
       const response = await fetch(jsonPath);
-      if (!response.ok) {
-        throw new Error("Errore nel caricamento del file JSON.");
-      }
-      allStations = await response.json();
-
-      // Ordina le stazioni in ordine alfabetico per nome
-      allStations.sort((a, b) => a.name.localeCompare(b.name));
-
+      if (!response.ok) throw new Error("Errore nel caricamento del file JSON.");
+      allStations = (await response.json()).sort((a, b) => a.name.localeCompare(b.name));
       displayStations(allStations);
-      currentIndex = -1; // Resetta l'indice quando si carica una nuova lista
+      currentIndex = -1;
       currentStationDisplay.textContent = "Seleziona una radio";
     } catch (error) {
-      console.error("Si è verificato un errore:", error);
-      currentStationDisplay.textContent =
-        "Impossibile caricare le stazioni radio.";
+      console.error(error);
+      currentStationDisplay.textContent = "Impossibile caricare le stazioni radio.";
       radioList.innerHTML = "<li>Nessuna stazione trovata.</li>";
     }
   }
 
-  // Funzione per visualizzare le stazioni nell'elenco
   function displayStations(stations) {
-    radioList.innerHTML = "";
-    stations.forEach((station) => {
-      const li = document.createElement("li");
-      li.innerHTML = `
-            <div class="station-info">
-                <span class="name">${station.name}</span>
-                <span class="language">(${station.language})</span>
-            </div>
-            <div class="station-info">
-                <span class="genre">${station.genre}</span>
-            </div>
-        `;
-      li.dataset.url = station.url;
-      li.dataset.name = station.name;
-      li.dataset.index = allStations.findIndex((s) => s.name === station.name);
-      radioList.appendChild(li);
-    });
+    currentStations = stations;
+    radioList.innerHTML = stations.map((s, i) => `
+      <li data-index="${i}" data-url="${s.url}">
+        <div class="station-info">
+          <span class="name">${s.name}</span>
+          <span class="language">(${s.language})</span>
+        </div>
+        <div class="station-info">
+          <span class="genre">${s.genre}</span>
+        </div>
+      </li>
+    `).join('');
   }
 
-  // Funzione per filtrare le stazioni
   searchBar.addEventListener("input", (e) => {
-    const searchText = e.target.value.toLowerCase();
-    const filteredStations = allStations.filter((station) => {
-      return (
-        station.name.toLowerCase().includes(searchText) ||
-        station.genre.toLowerCase().includes(searchText)
-      );
-    });
-    displayStations(filteredStations);
+    const text = e.target.value.toLowerCase();
+    displayStations(allStations.filter(s => s.name.toLowerCase().includes(text) || s.genre.toLowerCase().includes(text)));
+    currentIndex = -1;
+    currentStationDisplay.textContent = "Seleziona una radio";
   });
 
-  // Funzione unificata per riprodurre una stazione
   function playStation(station, index) {
-    const url = station.url;
-    const name = station.name;
+    if (!audioPlayer.paused) audioPlayer.pause();
 
-    // Se è già in riproduzione, metti in pausa per un istante per evitare conflitti
-    if (!audioPlayer.paused) {
+    if (typeof Hls !== "undefined" && Hls.isSupported() && station.url.endsWith(".m3u8")) {
+      if (hls) hls.destroy();
+      hls = new Hls();
+      hls.loadSource(station.url);
+      hls.attachMedia(audioPlayer);
+      hls.on(Hls.Events.MANIFEST_PARSED, () => audioPlayer.play().catch(console.error));
+    } else {
+      audioPlayer.src = station.url;
+      audioPlayer.play().catch(console.error);
+    }
+
+    currentStationDisplay.textContent = `- ${station.name} -`;
+    currentIndex = index;
+    updatePlayButton();
+  }
+
+  function updatePlayButton() {
+    playPauseBtn.textContent = audioPlayer.paused ? "▶" : "❚❚";
+    playPauseBtn.style.display = audioPlayer.src ? "inline" : "none";
+  }
+
+  async function switchAudio() {
+    if (audioPlayer.paused) {
+      try { await audioPlayer.play(); } catch (err) { console.error(err); }
+    } else {
       audioPlayer.pause();
     }
-
-    // Logica per gestire i link HLS e i link MP3 (richiede hls.js)
-    if (
-      typeof Hls !== "undefined" &&
-      Hls.isSupported() &&
-      url.endsWith(".m3u8")
-    ) {
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(audioPlayer);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        audioPlayer
-          .play()
-          .catch((error) =>
-            console.error("Errore durante la riproduzione:", error)
-          );
-      });
-    } else {
-      // Usa il metodo standard
-      audioPlayer.src = url;
-      audioPlayer
-        .play()
-        .catch((error) =>
-          console.error("Errore durante la riproduzione:", error)
-        );
-    }
-
-    currentStationDisplay.textContent = `In riproduzione: ${name}`;
-    currentIndex = index; // Aggiorna l'indice corrente
+    updatePlayButton();
   }
 
-  // Gestione del click sulla lista delle radio
   radioList.addEventListener("click", (e) => {
-    const listItem = e.target.closest("li");
-    if (listItem) {
-      const index = parseInt(listItem.dataset.index);
-      playStation(allStations[index], index);
-    }
+    const li = e.target.closest("li");
+    if (!li) return;
+    const index = parseInt(li.dataset.index);
+    playStation(currentStations[index], index);
   });
 
-  // Gestione del click sul pulsante 'Avanti'
+  playPauseBtn.addEventListener("click", switchAudio);
+  audioPlayer.addEventListener("play", updatePlayButton);
+  audioPlayer.addEventListener("pause", updatePlayButton);
+
   nextBtn.addEventListener("click", () => {
-    if (allStations.length === 0) return;
-    currentIndex = (currentIndex + 1) % allStations.length;
-    playStation(allStations[currentIndex], currentIndex);
+    if (!currentStations.length) return;
+    currentIndex = (currentIndex + 1) % currentStations.length;
+    playStation(currentStations[currentIndex], currentIndex);
   });
 
-  // Gestione del click sul pulsante 'Indietro'
   prevBtn.addEventListener("click", () => {
-    if (allStations.length === 0) return;
-    currentIndex = (currentIndex - 1 + allStations.length) % allStations.length;
-    playStation(allStations[currentIndex], currentIndex);
+    if (!currentStations.length) return;
+    currentIndex = (currentIndex - 1 + currentStations.length) % currentStations.length;
+    playStation(currentStations[currentIndex], currentIndex);
   });
 
-  // Gestione dell'evento di cambio selezione nel menu a tendina
   jsonSelector.addEventListener("change", (e) => {
-    const selectedJson = e.target.value;
     searchBar.value = "";
-    loadRadioStations(selectedJson);
+    loadRadioStations(e.target.value);
   });
 
-  // Avvia il caricamento delle stazioni quando la pagina è pronta
   loadRadioStations(jsonSelector.value);
+
+  // --vh fix per iOS/Android
+  function setVh() {
+    document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+  }
+  window.addEventListener('resize', setVh);
+  window.addEventListener('load', setVh);
+  setVh();
 });
-
-
-// Aggiorna --vh su resize e load per iOS/Android
-function setVh() {
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-
-window.addEventListener('resize', setVh);
-window.addEventListener('load', setVh);
-setVh();
-
