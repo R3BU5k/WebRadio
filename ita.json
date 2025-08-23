@@ -3,37 +3,37 @@
     "name": "Radio Deejay",
     "genre": "Pop, Dance, Talk",
     "language": "Italiano",
-    "url": "http://streamcdnb1-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiodeejay/radiodeejay/play1.m3u8"
+    "url": "https://StreamCdnF30-4c4b867c89244861ac216426883d1ad0.msvdn.net/radiodeejay/radiodeejay/master_ma.m3u8"
   },
   {
     "name": "Radio 105",
     "genre": "Hits, Urban, Talk",
     "language": "Italiano",
-    "url": "http://icecast.unitedradio.it/Radio105.mp3"
+    "url": "https://icecast.unitedradio.it/Radio105.mp3"
   },
   {
     "name": "Radio Ibiza",
     "genre": "Hits, Urban, Talk",
     "language": "Italiano",
-    "url": "http://wma08.fluidstream.net:5010/;stream.aac"
+    "url": "https://kisskiss.fluidstream.eu/ibiza.mp3"
   },
   {
     "name": "RTL 102.5",
     "genre": "Pop, Hits",
     "language": "Italiano",
-    "url": "http://streamingv2.shoutcast.com/rtl-1025"
+    "url": "https://StreamCdnF29-dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S97044836/tbbP8T1ZRPBL/playlist_audio.m3u8"
   },
   {
     "name": "Radio 105 - Zoo Radio",
     "genre": "comedy, mediaset, talk",
     "language": "Italiano",
-    "url": "http://icy.unitedradio.it/105Zoo.mp3"
+    "url": "https://icy.unitedradio.it/105Zoo.mp3"
   },
   {
     "name": "Radio Kiss Kiss",
     "genre": "Hits, Pop",
     "language": "Italiano",
-    "url": "http://kisskiss.fluidstream.eu/KissKiss.mp3"
+    "url": "https://ice06.fluidstream.net:8080/KissKiss.mp3"
   },
   {
     "name": "m2o",
@@ -51,25 +51,25 @@
     "name": "Rai Radio 1",
     "genre": "News, Sport, Talk",
     "language": "Italiano",
-    "url": "http://icestreaming.rai.it/1.mp3"
+    "url": "https://icestreaming.rai.it/1.mp3"
   },
   {
     "name": "Rai Radio 2",
     "genre": "Pop, Talk",
     "language": "Italiano",
-    "url": "http://icestreaming.rai.it/2.mp3"
+    "url": "https://icestreaming.rai.it/2.mp3"
   },
   {
     "name": "Rai Radio 3",
     "genre": "Classica, Cultura",
     "language": "Italiano",
-    "url": "http://icestreaming.rai.it/3.mp3"
+    "url": "https://icestreaming.rai.it/3.mp3"
   },
   {
     "name": "Virgin Radio",
     "genre": "Rock",
     "language": "Italiano",
-    "url": "http://icecast.unitedradio.it/Virgin.mp3"
+    "url": "https://icecast.unitedradio.it/Virgin.mp3"
   },
   {
     "name": "Radio Capital",
@@ -81,24 +81,18 @@
     "name": "Radio Monte Carlo",
     "genre": "Easy Listening, Jazz",
     "language": "Italiano",
-    "url": "http://icecast.unitedradio.it/RMC.mp3"
-  },
-  {
-    "name": "Radio 24",
-    "genre": "News, Economy, Talk",
-    "language": "Italiano",
-    "url": "http://shoutcast2.radio24.ilsole24ore.com:8000/stream"
+    "url": "https://icecast.unitedradio.it/RMC.mp3"
   },
   {
     "name": "Radio Subasio",
     "genre": "assisi, italy, mediaset",
     "language": "Italiano",
-    "url": "http://icy.unitedradio.it/Subasio.mp3"
+    "url": "https://icy.unitedradio.it/Subasio.mp3"
   },
   {
     "name": "R101 FM",
     "genre": "adult contemporary, mediaset, pop",
     "language": "Italiano",
-    "url": "http://icecast.unitedradio.it/r101"
+    "url": "https://icecast.unitedradio.it/r101"
   }
 ]
