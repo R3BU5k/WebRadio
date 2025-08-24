@@ -66,6 +66,7 @@ html, body {
   color: var(--color-primary);
   text-align: center;
   white-space: nowrap;
+  width: fit-content;
 }
 
 audio {
@@ -290,5 +291,6 @@ audio {
 }
 
 }
+
 
 
