@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let allStations = [];
   let currentStations = [];
   let currentIndex = -1;
-  let hls;
+  let hls = null;
 
   async function loadRadioStations(jsonPath) {
     try {
@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       allStations = (await response.json()).sort((a, b) => a.name.localeCompare(b.name));
       displayStations(allStations);
       currentIndex = -1;
+      resetAudioPlayer();
       currentStationDisplay.textContent = "Seleziona una radio";
     } catch (error) {
       console.error(error);
@@ -46,53 +47,105 @@ document.addEventListener("DOMContentLoaded", () => {
   searchBar.addEventListener("input", (e) => {
     const text = e.target.value.toLowerCase();
     displayStations(allStations.filter(s => s.name.toLowerCase().includes(text) || s.genre.toLowerCase().includes(text)));
-    currentIndex = -1;
-    currentStationDisplay.textContent = "Seleziona una radio";
   });
 
-  function playStation(station, index) {
-    if (!audioPlayer.paused) audioPlayer.pause();
+  // Funzione per azzerare lo stream precedente e svuotare il buffer
+  function resetAudioPlayer() {
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+    audioPlayer.pause();
+    audioPlayer.removeAttribute("src"); // Rimuove l'URL per non mantenere lock o connessioni aperte
+    audioPlayer.load(); // Svuota la memoria e il buffer del browser
+  }
 
-    if (typeof Hls !== "undefined" && Hls.isSupported() && station.url.endsWith(".m3u8")) {
-      if (hls) hls.destroy();
+  function playStation(station, index) {
+    if (!station) return;
+
+    // 1. Ferma e resetta completamente la riproduzione precedente
+    resetAudioPlayer();
+
+    currentIndex = index;
+    currentStationDisplay.textContent = `Caricamento: ${station.name}...`;
+
+    const handlePlayError = (err) => {
+      console.error("Errore di riproduzione:", err);
+      currentStationDisplay.textContent = `Offline o non raggiungibile: ${station.name}`;
+      resetAudioPlayer();
+      updatePlayButton();
+    };
+
+    // 2. Gestione flusso HLS (.m3u8) o stream HTTP/MP3 standard
+    if (typeof Hls !== "undefined" && Hls.isSupported() && station.url.includes(".m3u8")) {
       hls = new Hls();
       hls.loadSource(station.url);
       hls.attachMedia(audioPlayer);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => audioPlayer.play().catch(console.error));
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        audioPlayer.play().catch(handlePlayError);
+      });
+
+      hls.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          handlePlayError(data.type);
+        }
+      });
     } else {
       audioPlayer.src = station.url;
-      audioPlayer.play().catch(console.error);
+      audioPlayer.load(); // Fondamentale per agganciarsi al punto "live" in tempo reale
+      audioPlayer.play().catch(handlePlayError);
     }
 
-    currentStationDisplay.textContent = `- ${station.name} -`;
-    currentIndex = index;
     updatePlayButton();
   }
 
   function updatePlayButton() {
+    // Se c'è uno stream in riproduzione mostra l'icona pausa, altrimenti play
     playPauseBtn.textContent = audioPlayer.paused ? "▶" : "❚❚";
-    playPauseBtn.style.display = audioPlayer.src ? "inline" : "none";
+    playPauseBtn.style.display = (currentIndex !== -1) ? "inline" : "none";
   }
 
-  async function switchAudio() {
+  function switchAudio() {
     if (audioPlayer.paused) {
-      try { await audioPlayer.play(); } catch (err) { console.error(err); }
+      if (currentIndex !== -1 && currentStations[currentIndex]) {
+        // Ricarica la stazione da zero per allinearsi alla diretta live (evita il buffer vecchio)
+        playStation(currentStations[currentIndex], currentIndex);
+      }
     } else {
-      audioPlayer.pause();
+      // Quando si stoppa una radio live, è preferibile azzerare la ricezione
+      resetAudioPlayer();
+      updatePlayButton();
+    }
+  }
+
+  // Evento nativo di errore del tag <audio> (es. server irraggiungibile, 404, CORS o Mixed Content)
+  audioPlayer.addEventListener("error", () => {
+    if (currentIndex !== -1 && currentStations[currentIndex]) {
+      currentStationDisplay.textContent = `Non disponibile: ${currentStations[currentIndex].name}`;
+    }
+    resetAudioPlayer();
+    updatePlayButton();
+  });
+
+  // Il nome della stazione viene confermato a schermo solo quando l'audio parte per davvero
+  audioPlayer.addEventListener("playing", () => {
+    if (currentIndex !== -1 && currentStations[currentIndex]) {
+      currentStationDisplay.textContent = `- ${currentStations[currentIndex].name} -`;
     }
     updatePlayButton();
-  }
+  });
+
+  audioPlayer.addEventListener("pause", updatePlayButton);
 
   radioList.addEventListener("click", (e) => {
     const li = e.target.closest("li");
     if (!li) return;
-    const index = parseInt(li.dataset.index);
+    const index = parseInt(li.dataset.index, 10);
     playStation(currentStations[index], index);
   });
 
   playPauseBtn.addEventListener("click", switchAudio);
-  audioPlayer.addEventListener("play", updatePlayButton);
-  audioPlayer.addEventListener("pause", updatePlayButton);
 
   nextBtn.addEventListener("click", () => {
     if (!currentStations.length) return;
@@ -113,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadRadioStations(jsonSelector.value);
 
-  // --vh fix per iOS/Android
+  // --vh fix per dispositivi mobili (iOS/Android)
   function setVh() {
     document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
   }
